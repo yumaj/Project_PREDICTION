@@ -42,7 +42,7 @@ def safeDiv(left, right):
 pset = gp.PrimitiveSet("MAIN", 10)
 pset.addPrimitive(operator.add, 2)
 pset.addPrimitive(operator.sub, 2)
-pset.addPrimitive(operator.mul, 2)
+#pset.addPrimitive(operator.mul, 2)
 #will product nan value
 #.addPrimitive(safeDiv, 2)
 pset.addPrimitive(operator.neg, 1)
@@ -84,8 +84,8 @@ def evalSymbReg(individual, points,targetpoints):
     icounter= 0
 
     for x in points:
-        print("x = ", func(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]))
-        sqerrors+= func(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]) - targetpoints[icounter]
+        #print("x = ", func(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]))
+        sqerrors+= sqrt(((func(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]) - targetpoints[icounter])**2))
         icounter += 1
     # print("szie of year = " , len(data_year) , "size of points" , len(points))
 
@@ -109,7 +109,7 @@ def main():
     mstats.register("min", numpy.min)
     mstats.register("max", numpy.max)
 
-    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 100, stats=mstats,
+    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 1000, stats=mstats,
                                    halloffame=hof, verbose=True)
 
     return pop, log, hof
@@ -123,13 +123,14 @@ if __name__ == "__main__":
     training_size = 10
     interval = 10
     #for i in range(0,year.size - 1 - window_size):
-    for i in range(0, 1):
-        mat.figure(i)
+    final_vaild = []
+    final_vaild2 = []
+    for i in range(0, 10):
         #trainning data
         use_year = my_data[i:i+window_size]
 
         training_data = []
-        targetpoint = year[i + interval:i + interval + training_size]
+        targetpoint = my_data[i + interval:i + interval + training_size]
 
         print("targertpoint size3 = ", len(targetpoint))
         for j in range(0, training_size):
@@ -153,7 +154,34 @@ if __name__ == "__main__":
         func = toolbox.compile(expr=nof[-0])
         print(use_year)
         print(nof[-1])
-        '''
+        vari_data = targetpoint
+        vari_data_target  = my_data[i + interval + 1]
+        ansnum = func(targetpoint[0],targetpoint[1],targetpoint[2],targetpoint[3],targetpoint[4],targetpoint[5],targetpoint[6],targetpoint[7],targetpoint[8],targetpoint[9])
+        targetpoint = my_data[i + interval + 1:i + interval + training_size + 1]
+        ansnum2 =  func(targetpoint[0],targetpoint[1],targetpoint[2],targetpoint[3],targetpoint[4],targetpoint[5],targetpoint[6],targetpoint[7],targetpoint[8],targetpoint[9])
+        mse = sqrt((vari_data_target - ansnum)**2)
+        final_vaild.append(ansnum)
+        final_vaild2.append(ansnum2)
+        print(mse)
+    prediction_year = 10
+    x = year[interval + training_size:interval + training_size + prediction_year]
+    x2 = year[interval + training_size + 1:interval + training_size + prediction_year + 1]
+    print(x)
+    print(my_data[prediction_year:prediction_year + interval])
+    predictarr = final_vaild
+
+    print("arr = ", predictarr)
+    mat.plot(x, my_data[interval + training_size:interval + training_size + prediction_year], 'r-')
+    mat.xticks(x, x)
+    #print(len(allarr), "  ", x.size)
+    mat.plot(x, final_vaild, 'g--')
+    #np.insert(allarr2, 0, 0)
+    mat.plot(x2, final_vaild2, 'y--')
+
+    mat.legend(['original', 'regression first', 'regression sec'])
+
+    mat.show()
+'''
         resultset = func(use_year)
         print(resultset)
         # predict the value
