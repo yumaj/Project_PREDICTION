@@ -109,78 +109,112 @@ def main():
     mstats.register("min", numpy.min)
     mstats.register("max", numpy.max)
 
-    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 1000, stats=mstats,
+    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 500, stats=mstats,
                                    halloffame=hof, verbose=True)
 
     return pop, log, hof
 
 
 if __name__ == "__main__":
-    window_size = 10
-    best_ge = 0
-    best_i = 0
-    best_window_size = 0
-    training_size = 10
-    interval = 10
-    #for i in range(0,year.size - 1 - window_size):
-    final_vaild = []
-    final_vaild2 = []
-    for i in range(0, 10):
-        #trainning data
-        use_year = my_data[i:i+window_size]
 
-        training_data = []
-        targetpoint = my_data[i + interval:i + interval + training_size]
+    #muti times start
 
-        print("targertpoint size3 = ", len(targetpoint))
-        for j in range(0, training_size):
-            newdata = my_data[j + i:j + i + interval]
-            # newdata= np.insert(newdata, 0, 1)
-            print(newdata)
+    first_msearray = []
+    sec_msearray = []
+    tree_A = []
+    for x in range(0,30):
 
-            training_data.append(newdata)
-        print(use_year)
 
-        toolbox.register("evaluate", evalSymbReg, points=training_data,targetpoints = targetpoint)
-        toolbox.register("select", tools.selTournament, tournsize=3)
-        toolbox.register("mate", gp.cxOnePoint)
-        toolbox.register("expr_mut", gp.genFull, min_=0, max_=10)
-        toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+        window_size = 10
+        best_ge = 0
+        best_i = 0
+        best_window_size = 0
+        training_size = 10
+        interval = 10
+        #for i in range(0,year.size - 1 - window_size):
+        final_vaild = []
+        final_vaild2 = []
+        sum_mse = 0
+        sum_mse2 = 0
+        for i in range(0, 10):
+            #trainning data
+            use_year = my_data[i:i+window_size]
 
-        toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
-        toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+            training_data = []
+            targetpoint = my_data[i + interval:i + interval + training_size]
 
-        pop, log, nof = main()
-        func = toolbox.compile(expr=nof[-0])
-        print(use_year)
-        print(nof[-1])
-        vari_data = targetpoint
-        vari_data_target  = my_data[i + interval + 1]
-        ansnum = func(targetpoint[0],targetpoint[1],targetpoint[2],targetpoint[3],targetpoint[4],targetpoint[5],targetpoint[6],targetpoint[7],targetpoint[8],targetpoint[9])
-        targetpoint = my_data[i + interval + 1:i + interval + training_size + 1]
-        ansnum2 =  func(targetpoint[0],targetpoint[1],targetpoint[2],targetpoint[3],targetpoint[4],targetpoint[5],targetpoint[6],targetpoint[7],targetpoint[8],targetpoint[9])
-        mse = sqrt((vari_data_target - ansnum)**2)
-        final_vaild.append(ansnum)
-        final_vaild2.append(ansnum2)
-        print(mse)
-    prediction_year = 10
-    x = year[interval + training_size:interval + training_size + prediction_year]
-    x2 = year[interval + training_size + 1:interval + training_size + prediction_year + 1]
-    print(x)
-    print(my_data[prediction_year:prediction_year + interval])
-    predictarr = final_vaild
+            print("targertpoint size3 = ", len(targetpoint))
+            for j in range(0, training_size):
+                newdata = my_data[j + i:j + i + interval]
+                # newdata= np.insert(newdata, 0, 1)
+                print(newdata)
 
+                training_data.append(newdata)
+            print(use_year)
+
+            toolbox.register("evaluate", evalSymbReg, points=training_data,targetpoints = targetpoint)
+            toolbox.register("select", tools.selTournament, tournsize=3)
+            toolbox.register("mate", gp.cxOnePoint)
+            toolbox.register("expr_mut", gp.genFull, min_=0, max_=10)
+            toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
+
+            toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+            toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
+
+            pop, log, nof = main()
+            func = toolbox.compile(expr=nof[-0])
+            print(use_year)
+            print(nof[-1])
+            vari_data = targetpoint
+            vari_data_target  = my_data[i + interval + training_size + 1]
+            vari_data_target2 = my_data[i + interval + training_size + 2]
+            ansnum = func(targetpoint[0],targetpoint[1],targetpoint[2],targetpoint[3],targetpoint[4],targetpoint[5],targetpoint[6],targetpoint[7],targetpoint[8],targetpoint[9])
+            targetpoint = my_data[i + interval + 1:i + interval + training_size + 1]
+            ansnum2 =  func(targetpoint[0],targetpoint[1],targetpoint[2],targetpoint[3],targetpoint[4],targetpoint[5],targetpoint[6],targetpoint[7],targetpoint[8],targetpoint[9])
+            mse = sqrt((vari_data_target - ansnum)**2)
+            mse2 = sqrt((vari_data_target2 - ansnum2)**2)
+            final_vaild.append(ansnum)
+            final_vaild2.append(ansnum2)
+            sum_mse += mse
+            sum_mse2 += mse2
+            tree_A.append(nof[-0])
+            print(mse)
+        prediction_year = 10
+        first_msearray.append(sum_mse)
+        sec_msearray.append(sum_mse2)
+        x = year[interval + training_size:interval + training_size + prediction_year]
+        x2 = year[interval + training_size + 1:interval + training_size + prediction_year + 1]
+        print(x)
+        print(my_data[prediction_year:prediction_year + interval])
+        predictarr = final_vaild
+        print(first_msearray)
+        print(sec_msearray)
+        print(tree_A)
+    f = open('first_data.txt', 'a')
+    for time in range(0,30):
+        f.write(str(first_msearray[time]))
+        f.write(",")
+    f2 = open('sec_data.txt', 'a')
+    for time in range(0,30):
+
+        f2.write(str(sec_msearray[time]))
+        f2.write(",")
+    f3 = open('tree.txt', 'a')
+    for time in range(0,30):
+
+        f2.write(str(tree_A[time]))
+        f2.write(",")
     print("arr = ", predictarr)
-    mat.plot(x, my_data[interval + training_size:interval + training_size + prediction_year], 'r-')
-    mat.xticks(x, x)
+    #mat.plot(x, my_data[interval + training_size:interval + training_size + prediction_year], 'r-')
+    #mat.xticks(x, x)
     #print(len(allarr), "  ", x.size)
-    mat.plot(x, final_vaild, 'g--')
+    #mat.plot(x, final_vaild, 'g--')
     #np.insert(allarr2, 0, 0)
-    mat.plot(x2, final_vaild2, 'y--')
+    #mat.plot(x2, final_vaild2, 'y--')
 
-    mat.legend(['original', 'regression first', 'regression sec'])
+    #mat.legend(['original', 'regression first', 'regression sec'])
 
-    mat.show()
+    #mat.show()
 '''
         resultset = func(use_year)
         print(resultset)
