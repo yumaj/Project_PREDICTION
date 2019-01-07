@@ -93,8 +93,10 @@ for x in range(0,30):
         print(num)
         mse = sqrt((vari_data_target - num) ** 2)
         mse2 = sqrt((vari_data_target2 - num2) ** 2)
-        first_msearray.append(sum_mse)
-        sec_msearray.append(sum_mse2)
+        sum_mse += mse
+        sum_mse2 += mse2
+    first_msearray.append(sum_mse)
+    sec_msearray.append(sum_mse2)
 
     x = year[interval + training_size :interval + training_size + prediction_year  ]
     print(x)
@@ -106,15 +108,15 @@ for x in range(0,30):
     #mat.plot(x,allarr,'g--')
     np.insert(allarr2,0,0)
     #mat.plot(x,allarr2,'y--')
-    f = open('SKLEARN_first_data.txt', 'a')
-    for time in range(0,30):
-        f.write(str(first_msearray[time]))
-        f.write(",")
-    f2 = open('SKLEARN_sec_data.txt', 'a')
-    for time in range(0,30):
+f = open('SKLEARN_first_data.txt', 'a')
+for time in range(0,30):
+    f.write(str(first_msearray[time]))
+    f.write(",")
+f2 = open('SKLEARN_sec_data.txt', 'a')
+for time in range(0,30):
 
-        f2.write(str(sec_msearray[time]))
-        f2.write(",")
+    f2.write(str(sec_msearray[time]))
+    f2.write(",")
     #mat.legend(['original', 'regression first','regression sec'])
 
     #mat.show()
