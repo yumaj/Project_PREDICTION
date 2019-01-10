@@ -41,7 +41,7 @@ class pytorch_rnn():
                 return outs, hidden_state
 
         self.rnn = RNN(self.INPUT_SIZE, self.HIDDEN_SIZE, self.NUM_LAYERS, self.OUTPUT_SIZE)
-
+        #self.rnn.cuda()
         optimiser = torch.optim.Adam(self.rnn.parameters(), lr=self.learning_rate)
         criterion = nn.MSELoss()
 
@@ -51,13 +51,13 @@ class pytorch_rnn():
             inputs = Variable(torch.from_numpy(X_train).float())
             labels = Variable(torch.from_numpy(y_train).float())
 
-            output, hidden_state = self.rnn(inputs, hidden_state) 
+            output, hidden_state = self.rnn(inputs, hidden_state)
 
             loss = criterion(output.view(-1), labels)
             optimiser.zero_grad()
-            #back propagation
+            # back propagation
             loss.backward(retain_graph=True)                     
-            #update
+            # update
             optimiser.step()                                     
             
             print('epoch {}, loss {}'.format(epoch,loss.item()))
