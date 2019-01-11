@@ -21,7 +21,7 @@ X_train = []
 y_train = []
 
 INPUT_SIZE = 60
-num_epochs = 20
+
 # Feature Scaling
 
 sc = MinMaxScaler(feature_range = (0, 1))
@@ -70,10 +70,10 @@ lr_arr = lr_model.vaild(X_collect_for_lin)
 
 ############### gp part #############################
 
+GP_SIZE = 60
+GP_model = DEAP_GP_model(num_generation=20,input_size=GP_SIZE)
 
-GP_model = DEAP_GP_model(num_generation=10)
 
-GP_SIZE = 10
 X_train_gp = []
 y_train_gp = []
 move_size = INPUT_SIZE - GP_SIZE
@@ -95,8 +95,8 @@ gp_arr = GP_model.vaild(X_collect_gp)
 
 ############### rnn part #############################
 #create rnn model 
-
-
+INPUT_SIZE = 60
+num_epochs = 20
 rnnmode = pytorch_rnn(INPUT_SIZE,num_epochs)
 
 
@@ -106,7 +106,7 @@ print(training_set)
 #train model 
 
 rnnmode.train(X_train,y_train)
-
+predicted_stock_price = rnnmode.vaild(X_collect)
 
 ############### rnn part  end#############################
 
@@ -114,7 +114,7 @@ rnnmode.train(X_train,y_train)
 
 ############## plot ######################################
 
-predicted_stock_price = rnnmode.vaild(X_collect)
+
 predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 lr_arr = lr_arr.reshape(-1, 1)
 predicted_stock_price_lr = sc.inverse_transform(lr_arr)
@@ -136,9 +136,23 @@ plt.plot(predicted_stock_price, color = 'blue', label = 'Prediction')
 plt.plot(predicted_stock_price_lr, color = 'yellow', label = 'linear Prediction')
 plt.plot(predicted_stock_price_gp, color = 'black', label = 'Gp Prediction')
 
-lrmse = sum(sqrt((real_stock_price_all - predicted_stock_price_lr)**2)) 
-gpmse = sum(sqrt((real_stock_price_all - predicted_stock_price_gp)**2))
-rnnmse = sum(sqrt((real_stock_price_all - predicted_stock_price)**2))
+
+lrmse = sum(sqrt((real_stock_price_all - predicted_stock_price_lr)**2))/len(predicted_stock_price_lr)
+gpmse = sum(sqrt((real_stock_price_all - predicted_stock_price_gp)**2))/len(predicted_stock_price_gp)
+rnnmse = sum(sqrt((real_stock_price_all - predicted_stock_price)**2))/len(predicted_stock_price)
+
+
+
+
+predicted_stock_price_lr.tofile('lrmodel_reslut.csv',sep=',')
+predicted_stock_price_gp.tofile('gp_reslut.csv',sep=',')
+predicted_stock_price.tofile('rnn_reslut.csv',sep=',')
+
+
+f3 = open('GP_tree.txt', 'w')
+f3.write(str(GP_model.nof_expr[-0]))
+f4 = open('linearReg_parameter.txt', 'w')
+f4.write(str(lr_model.coef))
 
 print('linear mse = {}, gp mse = {}, rnn mse = {}'.format(lrmse,gpmse,rnnmse))
 

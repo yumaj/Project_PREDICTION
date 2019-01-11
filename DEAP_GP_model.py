@@ -19,9 +19,7 @@ import deap
 
 class DEAP_GP_model():
 
-    def __init__(self,num_generation):
-        # input the dataset
-        my_data = genfromtxt('japangdp.csv', delimiter=',')
+    def __init__(self,num_generation,input_size):
 
         # Define new functions
         def safeDiv(left, right):
@@ -31,8 +29,10 @@ class DEAP_GP_model():
                 return 0
 
 
+        self.input_size = input_size
+
         # set tree operator and constant terminal
-        self.pset = gp.PrimitiveSet("MAIN", 10)
+        self.pset = gp.PrimitiveSet("MAIN",60)
         self.pset.addPrimitive(operator.add, 2)
         self.pset.addPrimitive(operator.sub, 2)
         #pset.addPrimitive(operator.mul, 2)
@@ -74,10 +74,10 @@ class DEAP_GP_model():
     def vaild(self,test_X):
         
         nof = self.nof_expr
-        func = self.toolbox.compile(expr=nof[-0])
+        func = self.toolbox.compile(expr=nof[-1])
         ansnum = []
         for i in range(0,len(test_X)):
-            ansnum.append(func(test_X[i][0],test_X[i][1],test_X[i][2],test_X[i][3],test_X[i][4],test_X[i][5],test_X[i][6],test_X[i][7],test_X[i][8],test_X[i][9]))  
+            ansnum.append(func(*test_X[i]))
 
         return ansnum
 
@@ -95,7 +95,7 @@ class DEAP_GP_model():
 
         for x in points:
             #print("x = ", func(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]))
-            sqerrors+= sqrt(((func(x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9]) - targetpoints[icounter])**2))
+            sqerrors+= sqrt(((func(*x) - targetpoints[icounter])**2))
             icounter += 1
         # print("szie of year = " , len(data_year) , "size of points" , len(points))
 

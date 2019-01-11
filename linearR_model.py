@@ -17,7 +17,7 @@ class linear_model():
         self.predictarr = []
         self.training_size = 10
         self.lr_model = None
-
+        self.coef = None
 
 
     def train(self,training_data_set,training_data_y):
@@ -33,6 +33,7 @@ class linear_model():
 
         modelx = lr.fit(training_data_set,training_data_y)
         self.lr_model = modelx
+        self.coef = modelx.coef_
         return modelx
         
     def vaild(self,input_y):

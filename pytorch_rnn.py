@@ -45,9 +45,10 @@ class pytorch_rnn():
         optimiser = torch.optim.Adam(self.rnn.parameters(), lr=self.learning_rate)
         criterion = nn.MSELoss()
 
-        hidden_state = None
+        
 
         for epoch in range(self.num_epochs):
+            hidden_state = None
             inputs = Variable(torch.from_numpy(X_train).float())
             labels = Variable(torch.from_numpy(y_train).float())
 
