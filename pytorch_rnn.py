@@ -7,17 +7,17 @@ from sklearn.preprocessing import MinMaxScaler
 
 class pytorch_rnn():
 
-    def __init__(self,INPUT_SIZE,num_epochs):
+    def __init__(self,INPUT_SIZE,num_epochs,OUTPUT_SIZE):
 
         #mode setting
         self.INPUT_SIZE = INPUT_SIZE
         self.HIDDEN_SIZE = 64
         self.NUM_LAYERS = 2
-        self.OUTPUT_SIZE = 1
+        self.OUTPUT_SIZE = OUTPUT_SIZE
         self.learning_rate = 0.001
         self.num_epochs = num_epochs
         self.rnn = None
-    def train(self,X_train,y_train):
+    def train(self,X_train,y_train,windwos_size,predict_move):
 
         #defined RNN model 
         class RNN(nn.Module):
@@ -45,23 +45,37 @@ class pytorch_rnn():
         optimiser = torch.optim.Adam(self.rnn.parameters(), lr=self.learning_rate)
         criterion = nn.MSELoss()
 
-        
 
         for epoch in range(self.num_epochs):
-            hidden_state = None
-            inputs = Variable(torch.from_numpy(X_train).float())
-            labels = Variable(torch.from_numpy(y_train).float())
-
-            output, hidden_state = self.rnn(inputs, hidden_state)
-
-            loss = criterion(output.view(-1), labels)
-            optimiser.zero_grad()
-            # back propagation
-            loss.backward(retain_graph=True)                     
-            # update
-            optimiser.step()                                     
             
-            print('epoch {}, loss {}'.format(epoch,loss.item()))
+            hidden_state = None
+            for stage  in  range(0, len(X_train) - windwos_size - self.INPUT_SIZE,windwos_size - predict_move):
+                X_train_data  = []
+                Y_train_Data = []
+                X_train_data_r = None
+                Y_train_data_r = None
+                for i in range( self.INPUT_SIZE + stage, self.INPUT_SIZE + stage + windwos_size):
+                    X_train_data.append( X_train[i- self.INPUT_SIZE:i, 0])
+                    Y_train_Data.append( X_train[i + predict_move, 0])
+
+                X_train_data_r,  Y_train_data_r = np.array( X_train_data), np.array(Y_train_Data)
+                X_train_data_r = np.reshape( X_train_data_r, ( X_train_data_r.shape[0], 1,  X_train_data_r.shape[1]) )
+                
+
+               
+                inputs = Variable(torch.from_numpy(X_train_data_r).float())
+                labels = Variable(torch.from_numpy(Y_train_data_r).float())
+
+                output, hidden_state = self.rnn(inputs, hidden_state)
+
+                loss = criterion(output.view(-1), labels)
+                optimiser.zero_grad()
+                # back propagation
+                loss.backward(retain_graph=True)                     
+                # update
+                optimiser.step()                                     
+                
+                print('epoch {}, loss {}'.format(epoch,loss.item()))
         return self.rnn
 
 

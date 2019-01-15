@@ -21,13 +21,13 @@ X_train = []
 y_train = []
 
 INPUT_SIZE = 60
-
+predict_move = 5
 # Feature Scaling
 
 sc = MinMaxScaler(feature_range = (0, 1))
 training_set_scaled = sc.fit_transform(training_set)
 
-for i in range( INPUT_SIZE, len(training_set)):
+for i in range( INPUT_SIZE, len(training_set) - predict_move):
     X_train.append( training_set_scaled[i- INPUT_SIZE:i, 0])
     y_train.append( training_set_scaled[i, 0])
 X_train,  y_train = np.array( X_train), np.array( y_train)
@@ -71,15 +71,15 @@ lr_arr = lr_model.vaild(X_collect_for_lin)
 ############### gp part #############################
 
 GP_SIZE = 60
-GP_model = DEAP_GP_model(num_generation=20,input_size=GP_SIZE)
+GP_model = DEAP_GP_model(num_generation=1,input_size=GP_SIZE)
 
 
 X_train_gp = []
 y_train_gp = []
 move_size = INPUT_SIZE - GP_SIZE
-for i in range(move_size+GP_SIZE, len(training_set)):
+for i in range(move_size+GP_SIZE, len(training_set) - predict_move):
     X_train_gp.append( training_set_scaled[i- GP_SIZE:i, 0])
-    y_train_gp.append( training_set_scaled[i, 0])
+    y_train_gp.append( training_set_scaled[i + predict_move, 0])
 X_train_gp,  y_train_gp = np.array( X_train_gp), np.array( y_train_gp)
 
 GP_model.train(X_train_gp,y_train_gp)
@@ -96,8 +96,10 @@ gp_arr = GP_model.vaild(X_collect_gp)
 ############### rnn part #############################
 #create rnn model 
 INPUT_SIZE = 60
-num_epochs = 20
-rnnmode = pytorch_rnn(INPUT_SIZE,num_epochs)
+num_epochs = 40
+OUT_PUT_SIZE = 1
+
+rnnmode = pytorch_rnn(INPUT_SIZE,num_epochs,OUT_PUT_SIZE)
 
 
 print(training_set)
@@ -105,7 +107,7 @@ print(training_set)
 
 #train model 
 
-rnnmode.train(X_train,y_train)
+rnnmode.train(training_set_scaled,training_set_scaled,1000,predict_move)
 predicted_stock_price = rnnmode.vaild(X_collect)
 
 ############### rnn part  end#############################
@@ -124,7 +126,7 @@ predicted_stock_price_gp = sc.inverse_transform(gp_arr)
 
 real_stock_price_all = np.concatenate((training_set[INPUT_SIZE:], real_stock_price))
 
-
+real_stock_price_all = real_stock_price_all[5:]
 
 
 print(predicted_stock_price_lr)
