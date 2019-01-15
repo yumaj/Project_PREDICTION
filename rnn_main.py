@@ -71,7 +71,7 @@ lr_arr = lr_model.vaild(X_collect_for_lin)
 ############### gp part #############################
 
 GP_SIZE = 60
-GP_model = DEAP_GP_model(num_generation=1,input_size=GP_SIZE)
+GP_model = DEAP_GP_model(num_generation=40,input_size=GP_SIZE)
 
 
 X_train_gp = []
@@ -96,7 +96,7 @@ gp_arr = GP_model.vaild(X_collect_gp)
 ############### rnn part #############################
 #create rnn model 
 INPUT_SIZE = 60
-num_epochs = 40
+num_epochs = 60
 OUT_PUT_SIZE = 1
 
 rnnmode = pytorch_rnn(INPUT_SIZE,num_epochs,OUT_PUT_SIZE)
