@@ -1,1 +1,1 @@
-sub(add(ARG47, ARG59), ARG47)
+safeDiv(ARG25, ARG48)

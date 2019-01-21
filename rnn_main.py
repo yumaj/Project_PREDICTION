@@ -6,6 +6,7 @@ from pytorch_rnn import pytorch_rnn
 from linearR_model import linear_model
 from DEAP_GP_model import DEAP_GP_model
 from scipy import linspace, polyval, polyfit, sqrt, stats, randn
+import random
 
 ############### load data part #########################
 dataset_train = pd.read_csv('nikkei_data.csv')
@@ -29,6 +30,15 @@ training_set_scaled = sc.fit_transform(training_set)
 
 for i in range( INPUT_SIZE, len(training_set) - predict_move):
     X_train.append( training_set_scaled[i- INPUT_SIZE:i, 0])
+    rn = random.randint(0,10)
+    if rn <= 1 :
+        cn = random.randint(50,59)
+        for j in range(0,cn):
+            pos = random.randint(0,INPUT_SIZE - 1)
+            num =  int(X_train[-1][pos])
+            if pos - 1 >= 0 :
+                num2 =  int(X_train[-1][pos - 1])
+            X_train[-1][pos] =  random.randint(num2,num)
     y_train.append( training_set_scaled[i, 0])
 X_train,  y_train = np.array( X_train), np.array( y_train)
 # Reshape shape[0] is number of row , shape[1] is number of col
@@ -71,7 +81,7 @@ lr_arr = lr_model.vaild(X_collect_for_lin)
 ############### gp part #############################
 
 GP_SIZE = 60
-GP_model = DEAP_GP_model(num_generation=40,input_size=GP_SIZE)
+GP_model = DEAP_GP_model(num_generation=30,input_size=GP_SIZE)
 
 
 X_train_gp = []
@@ -79,6 +89,7 @@ y_train_gp = []
 move_size = INPUT_SIZE - GP_SIZE
 for i in range(move_size+GP_SIZE, len(training_set) - predict_move):
     X_train_gp.append( training_set_scaled[i- GP_SIZE:i, 0])
+
     y_train_gp.append( training_set_scaled[i + predict_move, 0])
 X_train_gp,  y_train_gp = np.array( X_train_gp), np.array( y_train_gp)
 
@@ -96,7 +107,7 @@ gp_arr = GP_model.vaild(X_collect_gp)
 ############### rnn part #############################
 #create rnn model 
 INPUT_SIZE = 60
-num_epochs = 60
+num_epochs = 1
 OUT_PUT_SIZE = 1
 
 rnnmode = pytorch_rnn(INPUT_SIZE,num_epochs,OUT_PUT_SIZE)
