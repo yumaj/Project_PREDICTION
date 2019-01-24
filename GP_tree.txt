@@ -1,1 +1,1 @@
-safeDiv(ARG25, ARG48)
+sin(sin(add(data_of_year9, ARG29)))
