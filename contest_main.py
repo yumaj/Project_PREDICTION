@@ -35,7 +35,7 @@ training_set_q1_solor_time = np.array(training_set_q1_solor_time)
 
 #setting 
 INPUT_SIZE = 92
-num_epochs = 1
+num_epochs = 1000
 OUT_PUT_SIZE = 1
 predict_move = 0
 
@@ -63,4 +63,4 @@ predicted_stock_price = rnnmode.vaild(training_set_q1_scaled,training_set_q2_sca
 
 predicted_stock_price = sc.inverse_transform(predicted_stock_price)
 
-predicted_stock_price.tofile('rnn_reslut.csv',sep=',')
+predicted_stock_price.tofile('rnn_reslut_contest_noex2.csv',sep=',')
